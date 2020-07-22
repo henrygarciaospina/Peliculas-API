@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace PeliculasAPI.Controllers
 {
     [ApiController]
-    [Route("api/controller")]
+    [Route("api/generos")]
     public class GenerosController : ControllerBase
     {
         private readonly ApplicationDbContext context;
