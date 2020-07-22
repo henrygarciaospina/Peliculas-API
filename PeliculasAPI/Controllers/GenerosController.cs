@@ -75,9 +75,9 @@ namespace PeliculasAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var existe = context.Generos.AnyAsync(g => g.Id == id);
+            var existe = await context.Generos.AnyAsync(g => g.Id == id);
 
-            if (existe == null)
+            if (!existe)
             {
                 return NotFound();
             }
