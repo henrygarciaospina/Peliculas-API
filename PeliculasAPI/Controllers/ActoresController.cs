@@ -52,7 +52,7 @@ namespace PeliculasAPI.Controllers
         {
             var entidad = mapper.Map<Actor>(actorCreacionDTO);
             context.Add(entidad);
-          //  await context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             var dto = mapper.Map<ActorDTO>(entidad);
 
             return new CreatedAtRouteResult("obtenerActor", new { id = entidad.Id }, dto);

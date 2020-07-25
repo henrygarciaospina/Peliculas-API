@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using PeliculasAPI.Servicios;
 
 namespace PeliculasAPI
 {
@@ -23,6 +24,10 @@ namespace PeliculasAPI
             // Esta línea configura AutoMapper
             services.AddAutoMapper(typeof(Startup));
 
+            // Configuración servicio para subir archivos al servidor
+            services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
+            services.AddHttpContextAccessor();
+
             // Configuración de la cadena de conexión
             services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -39,6 +44,9 @@ namespace PeliculasAPI
             }
 
             app.UseHttpsRedirection();
+
+            //Permite servir archivos estaticos
+            app.UseStaticFiles();
 
             app.UseRouting();
 
