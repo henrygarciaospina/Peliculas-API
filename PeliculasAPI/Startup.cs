@@ -24,8 +24,16 @@ namespace PeliculasAPI
             // Esta línea configura AutoMapper
             services.AddAutoMapper(typeof(Startup));
 
+            // Configuración servicio para subir archivos a StorageAzure
+            /*
+             * Si se van a subir a AzureStorage se debe descomentar la línea siguiente 
+            services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosAzure>();
+            *
+            *
+           */
             // Configuración servicio para subir archivos al servidor
             services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
+            
             services.AddHttpContextAccessor();
 
             // Configuración de la cadena de conexión
