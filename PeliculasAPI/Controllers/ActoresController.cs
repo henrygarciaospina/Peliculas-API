@@ -1,14 +1,12 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PeliculasAPI.DTOs;
 using PeliculasAPI.Entidades;
-using PeliculasAPI.Migrations;
 using PeliculasAPI.Servicios;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace PeliculasAPI.Controllers
@@ -62,14 +60,12 @@ namespace PeliculasAPI.Controllers
 
             if (actorCreacionDTO.Foto != null)
             {
-                using (var memoryStream = new MemoryStream()) 
-                {
-                    await actorCreacionDTO.Foto.CopyToAsync(memoryStream);
-                    var contenido = memoryStream.ToArray();
-                    var extension = Path.GetExtension(actorCreacionDTO.Foto.FileName);
-                    entidad.Foto = await almacenadorArchivos.GuardarArchivo(contenido, extension, contenedor,
-                        actorCreacionDTO.Foto.ContentType);
-                }
+                using var memoryStream = new MemoryStream();
+                await actorCreacionDTO.Foto.CopyToAsync(memoryStream);
+                var contenido = memoryStream.ToArray();
+                var extension = Path.GetExtension(actorCreacionDTO.Foto.FileName);
+                entidad.Foto = await almacenadorArchivos.GuardarArchivo(contenido, extension, contenedor,
+                    actorCreacionDTO.Foto.ContentType);
             }
 
             context.Add(entidad);
@@ -91,20 +87,53 @@ namespace PeliculasAPI.Controllers
 
             if (actorCreacionDTO.Foto != null)
             {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await actorCreacionDTO.Foto.CopyToAsync(memoryStream);
-                    var contenido = memoryStream.ToArray();
-                    var extension = Path.GetExtension(actorCreacionDTO.Foto.FileName);
-                    actorDB.Foto = await almacenadorArchivos.EditarArchivo(contenido, extension, contenedor,
-                        actorDB.Foto,
-                        actorCreacionDTO.Foto.ContentType);
-                }
+                using var memoryStream = new MemoryStream();
+                await actorCreacionDTO.Foto.CopyToAsync(memoryStream);
+                var contenido = memoryStream.ToArray();
+                var extension = Path.GetExtension(actorCreacionDTO.Foto.FileName);
+                actorDB.Foto = await almacenadorArchivos.EditarArchivo(contenido, extension, contenedor,
+                    actorDB.Foto,
+                    actorCreacionDTO.Foto.ContentType);
             }
 
             await context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        // PATCH api/actores/5
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<ActorPatchDTO> patchDocument)
+        {
+            if (patchDocument == null)
+            {
+                return BadRequest();
+            }
+
+            var entidadDB = await context.Actores.FirstOrDefaultAsync(a => a.Id == id);
+
+            if (entidadDB == null)
+            {
+                return NotFound();
+            }
+
+            var entidadDTO = mapper.Map<ActorPatchDTO>(entidadDB);
+
+            patchDocument.ApplyTo(entidadDTO, ModelState);
+
+            var esValido = TryValidateModel(entidadDTO);
+
+            if (!esValido)
+            {
+                return BadRequest(ModelState);
+            }
+
+            mapper.Map(entidadDTO, entidadDB);
+
+            await context.SaveChangesAsync();
+
+            return NoContent();
+            
         }
 
         // DELETE api/actores/5

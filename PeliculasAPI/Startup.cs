@@ -21,26 +21,27 @@ namespace PeliculasAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Esta l韓ea configura AutoMapper
+            // Esta l铆nea configura AutoMapper
             services.AddAutoMapper(typeof(Startup));
 
-            // Configuraci髇 servicio para subir archivos a StorageAzure
+            // Configuraci贸n servicio para subir archivos a StorageAzure
             /*
-             * Si se van a subir a AzureStorage se debe descomentar la l韓ea siguiente 
+             * Si se van a subir a AzureStorage se debe descomentar la l铆nea siguiente 
             services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosAzure>();
             *
             *
            */
-            // Configuraci髇 servicio para subir archivos al servidor
+            // Configuraci贸n servicio para subir archivos al servidor
             services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
             
             services.AddHttpContextAccessor();
 
-            // Configuraci髇 de la cadena de conexi髇
+            // Configuraci贸n de la cadena de conexi贸n
             services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddControllers();
+            services.AddControllers()
+            .AddNewtonsoftJson();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
