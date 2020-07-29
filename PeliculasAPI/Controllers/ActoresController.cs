@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PeliculasAPI.DTOs;
 using PeliculasAPI.Entidades;
+using PeliculasAPI.Helpers;
 using PeliculasAPI.Servicios;
 using System.Collections.Generic;
 using System.IO;
@@ -15,7 +16,7 @@ namespace PeliculasAPI.Controllers
     [Route("api/actores")]
     public class ActoresController : ControllerBase
     {
-        private readonly ApplicationDbContext context;
+        private readonly ApplicationDbContext queryable;
         private readonly IMapper mapper;
         private readonly IAlmacenadorArchivos almacenadorArchivos;
         private readonly string contenedor = "actores";
@@ -25,16 +26,18 @@ namespace PeliculasAPI.Controllers
             IMapper mapper,
             IAlmacenadorArchivos almacenadorArchivos) 
         {
-            this.context = context;
+            this.queryable = context;
             this.mapper = mapper;
             this.almacenadorArchivos = almacenadorArchivos;
         }
 
         // GET api/actores
         [HttpGet]
-        public async Task<ActionResult<List<ActorDTO>>> Get() 
+        public async Task<ActionResult<List<ActorDTO>>> Get([FromQuery] PaginacionDTO paginacionDTO) 
         {
-            var entidades = await context.Actores.ToListAsync();
+            var queryable = this.queryable.Actores.AsQueryable();
+            await HttpContext.InsertarParametrosPaginacion(queryable, paginacionDTO.CantidadRegistrosPorPagina);
+            var entidades = await queryable.Paginar(paginacionDTO).ToListAsync();
             return mapper.Map<List<ActorDTO>>(entidades);
         }
 
@@ -42,7 +45,7 @@ namespace PeliculasAPI.Controllers
         [HttpGet("{id}", Name ="obtenerActor")]
         public async Task<ActionResult<ActorDTO>> Get(int id) 
         {
-            var entidad = await context.Actores.FirstOrDefaultAsync(a => a.Id == id);
+            var entidad = await queryable.Actores.FirstOrDefaultAsync(a => a.Id == id);
 
             if (entidad == null)
             {
@@ -68,8 +71,8 @@ namespace PeliculasAPI.Controllers
                     actorCreacionDTO.Foto.ContentType);
             }
 
-            context.Add(entidad);
-            await context.SaveChangesAsync();
+            queryable.Add(entidad);
+            await queryable.SaveChangesAsync();
             var dto = mapper.Map<ActorDTO>(entidad);
 
             return new CreatedAtRouteResult("obtenerActor", new { id = entidad.Id }, dto);
@@ -79,7 +82,7 @@ namespace PeliculasAPI.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromForm] ActorCreacionDTO actorCreacionDTO)
         {
-            var actorDB = await context.Actores.FirstOrDefaultAsync(a => a.Id == id);
+            var actorDB = await queryable.Actores.FirstOrDefaultAsync(a => a.Id == id);
 
             if (actorDB == null) { return NotFound(); }
 
@@ -96,7 +99,7 @@ namespace PeliculasAPI.Controllers
                     actorCreacionDTO.Foto.ContentType);
             }
 
-            await context.SaveChangesAsync();
+            await queryable.SaveChangesAsync();
 
             return NoContent();
         }
@@ -110,7 +113,7 @@ namespace PeliculasAPI.Controllers
                 return BadRequest();
             }
 
-            var entidadDB = await context.Actores.FirstOrDefaultAsync(a => a.Id == id);
+            var entidadDB = await queryable.Actores.FirstOrDefaultAsync(a => a.Id == id);
 
             if (entidadDB == null)
             {
@@ -130,7 +133,7 @@ namespace PeliculasAPI.Controllers
 
             mapper.Map(entidadDTO, entidadDB);
 
-            await context.SaveChangesAsync();
+            await queryable.SaveChangesAsync();
 
             return NoContent();
             
@@ -140,15 +143,15 @@ namespace PeliculasAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var existe = await context.Actores.AnyAsync(a => a.Id == id);
+            var existe = await queryable.Actores.AnyAsync(a => a.Id == id);
 
             if (!existe)
             {
                 return NotFound();
             }
 
-            context.Remove(new Actor() { Id = id });
-            await context.SaveChangesAsync();
+            queryable.Remove(new Actor() { Id = id });
+            await queryable.SaveChangesAsync();
 
             return NoContent();
         }
