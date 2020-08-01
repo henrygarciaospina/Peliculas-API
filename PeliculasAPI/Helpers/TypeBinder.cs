@@ -20,7 +20,7 @@ namespace PeliculasAPI.Helpers
 
             try
             {
-                var valorDeserializado = JsonConvert.DeserializeObject<List<T>>(proveedorDeValores.FirstValue);
+                var valorDeserializado = JsonConvert.DeserializeObject<T>(proveedorDeValores.FirstValue);
                 bindingContext.Result = ModelBindingResult.Success(valorDeserializado);
             }
             catch
