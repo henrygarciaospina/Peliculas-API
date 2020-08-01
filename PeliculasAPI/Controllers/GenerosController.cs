@@ -26,8 +26,8 @@ namespace PeliculasAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<List<GeneroDTO>>> Get() 
         {
-            var entidades = await context.Generos.ToListAsync();
-            var dtos = mapper.Map<List<GeneroDTO>>(entidades);
+            var generos = await context.Generos.ToListAsync();
+            var dtos = mapper.Map<List<GeneroDTO>>(generos);
             return dtos;
         }
 
@@ -35,13 +35,13 @@ namespace PeliculasAPI.Controllers
         [HttpGet("{id:int}", Name = "obtenerGenero")]
         public async Task<ActionResult<GeneroDTO>> Get(int id)
         {
-            var entidad = await context.Generos.FirstOrDefaultAsync(g => g.Id == id );
-            if (entidad == null)
+            var genero= await context.Generos.FirstOrDefaultAsync(g => g.Id == id );
+            if (genero == null)
             {
                 return NotFound();
             }
 
-            var dto = mapper.Map<GeneroDTO>(entidad);
+            var dto = mapper.Map<GeneroDTO>(genero);
 
             return dto;
         }
@@ -50,12 +50,12 @@ namespace PeliculasAPI.Controllers
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] GeneroCreacionDTO generoCreacionDTO) 
         {
-            var entidad = mapper.Map<Genero>(generoCreacionDTO);
-            context.Add(entidad);
+            var genero = mapper.Map<Genero>(generoCreacionDTO);
+            context.Add(genero);
 
             await context.SaveChangesAsync();
 
-            var generoDTO = mapper.Map<GeneroDTO>(entidad);
+            var generoDTO = mapper.Map<GeneroDTO>(genero);
 
             return new CreatedAtRouteResult("obtenerGenero", new {id = generoDTO.Id, generoDTO });
         }
@@ -64,9 +64,9 @@ namespace PeliculasAPI.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] GeneroCreacionDTO generoCreacionDTO)
         {
-            var entidad = mapper.Map<Genero>(generoCreacionDTO);
-            entidad.Id = id;
-            context.Entry(entidad).State = EntityState.Modified;
+            var genero = mapper.Map<Genero>(generoCreacionDTO);
+            genero.Id = id;
+            context.Entry(genero).State = EntityState.Modified;
             await context.SaveChangesAsync();
             return NoContent();
         }
