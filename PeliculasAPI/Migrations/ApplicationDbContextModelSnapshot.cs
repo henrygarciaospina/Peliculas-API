@@ -39,6 +39,26 @@ namespace PeliculasAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Actores");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 3,
+                            FechaNacimiento = new DateTime(1962, 1, 17, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Nombre = "Jim Carrey"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            FechaNacimiento = new DateTime(1965, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Nombre = "Robert Downey Jr."
+                        },
+                        new
+                        {
+                            Id = 5,
+                            FechaNacimiento = new DateTime(1981, 6, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Nombre = "Chris Evans"
+                        });
                 });
 
             modelBuilder.Entity("PeliculasAPI.Entidades.Genero", b =>
@@ -82,6 +102,43 @@ namespace PeliculasAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Peliculas");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 3,
+                            EnCines = true,
+                            FechaEstreno = new DateTime(2019, 4, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Titulo = "Avengers: Endgame"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            EnCines = false,
+                            FechaEstreno = new DateTime(2019, 4, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Titulo = "Avengers: Infinity Wars"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            EnCines = false,
+                            FechaEstreno = new DateTime(2020, 2, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Titulo = "Sonic the Hedgehog"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            EnCines = false,
+                            FechaEstreno = new DateTime(2020, 2, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Titulo = "Emma"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            EnCines = false,
+                            FechaEstreno = new DateTime(2020, 8, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Titulo = "Wonder Woman 1984"
+                        });
                 });
 
             modelBuilder.Entity("PeliculasAPI.Entidades.PeliculasActores", b =>
@@ -123,13 +180,13 @@ namespace PeliculasAPI.Migrations
             modelBuilder.Entity("PeliculasAPI.Entidades.PeliculasActores", b =>
                 {
                     b.HasOne("PeliculasAPI.Entidades.Actor", "Actor")
-                        .WithMany()
+                        .WithMany("PeliculasActores")
                         .HasForeignKey("ActorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("PeliculasAPI.Entidades.Pelicula", "Pelicula")
-                        .WithMany()
+                        .WithMany("PeliculasActores")
                         .HasForeignKey("PeliculaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -138,13 +195,13 @@ namespace PeliculasAPI.Migrations
             modelBuilder.Entity("PeliculasAPI.Entidades.PeliculasGeneros", b =>
                 {
                     b.HasOne("PeliculasAPI.Entidades.Genero", "Genero")
-                        .WithMany()
+                        .WithMany("PeliculasGeneros")
                         .HasForeignKey("GeneroId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("PeliculasAPI.Entidades.Pelicula", "Pelicula")
-                        .WithMany()
+                        .WithMany("PeliculasGeneros")
                         .HasForeignKey("PeliculaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
