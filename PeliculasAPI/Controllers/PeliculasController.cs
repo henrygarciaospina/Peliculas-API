@@ -37,7 +37,7 @@ namespace PeliculasAPI.Controllers
             var top = 5;
             var hoy = DateTime.Today;
 
-            var proximoEstreno = await context.Peliculas
+            var proximosEstrenos = await context.Peliculas
                 .Where(p => p.FechaEstreno > hoy)
                 .OrderBy(p => p.FechaEstreno)
                 .Take(top)
@@ -51,7 +51,7 @@ namespace PeliculasAPI.Controllers
             var resultado = new PeliculasIndexDTO
             {
                 EnCines = mapper.Map<List<PeliculaDTO>>(enCines),
-                FuturosEstrenos = mapper.Map<List<PeliculaDTO>>(proximoEstreno)
+                FuturosEstrenos = mapper.Map<List<PeliculaDTO>>(proximosEstrenos)
             };
 
             return resultado;
