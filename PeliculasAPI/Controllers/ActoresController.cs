@@ -14,7 +14,7 @@ namespace PeliculasAPI.Controllers
 {
     [ApiController]
     [Route("api/actores")]
-    public class ActoresController : ControllerBase
+    public class ActoresController : CustomBaseController
     {
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
@@ -22,42 +22,34 @@ namespace PeliculasAPI.Controllers
         private readonly string contenedor = "actores";
 
 
-        public ActoresController(ApplicationDbContext context, 
+        public ActoresController(ApplicationDbContext context,
             IMapper mapper,
-            IAlmacenadorArchivos almacenadorArchivos) 
+            IAlmacenadorArchivos almacenadorArchivos)
+            : base(context, mapper)
         {
             this.context = context;
             this.mapper = mapper;
             this.almacenadorArchivos = almacenadorArchivos;
         }
 
+
         // GET api/actores
         [HttpGet]
-        public async Task<ActionResult<List<ActorDTO>>> Get([FromQuery] PaginacionDTO paginacionDTO) 
+        public async Task<ActionResult<List<ActorDTO>>> Get([FromQuery] PaginacionDTO paginacionDTO)
         {
-            var queryable = context.Actores.AsQueryable();
-            await HttpContext.InsertarParametrosPaginacion(queryable, paginacionDTO.CantidadRegistrosPorPagina);
-            var actores = await queryable.Paginar(paginacionDTO).ToListAsync();
-            return mapper.Map<List<ActorDTO>>(actores);
+            return await Get<Actor, ActorDTO>(paginacionDTO);
         }
 
         // GET api/actores/5
-        [HttpGet("{id}", Name ="obtenerActor")]
-        public async Task<ActionResult<ActorDTO>> Get(int id) 
+        [HttpGet("{id}", Name = "obtenerActor")]
+        public async Task<ActionResult<ActorDTO>> Get(int id)
         {
-            var actor = await context.Actores.FirstOrDefaultAsync(a => a.Id == id);
-
-            if (actor == null)
-            {
-                return NotFound();
-            }
-
-            return  mapper.Map<ActorDTO>(actor);
+            return await Get<Actor, ActorDTO>(id);
         }
 
         // POST api/actores
         [HttpPost]
-        public async Task<ActionResult>  Post([FromForm] ActorCreacionDTO actorCreacionDTO) 
+        public async Task<ActionResult> Post([FromForm] ActorCreacionDTO actorCreacionDTO)
         {
             var actor = mapper.Map<Actor>(actorCreacionDTO);
 
@@ -108,52 +100,15 @@ namespace PeliculasAPI.Controllers
         [HttpPatch("{id}")]
         public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<ActorPatchDTO> patchDocument)
         {
-            if (patchDocument == null)
-            {
-                return BadRequest();
-            }
+            return await Patch<Actor, ActorPatchDTO>(id, patchDocument);
 
-            var actorDB = await context.Actores.FirstOrDefaultAsync(a => a.Id == id);
-
-            if (actorDB == null)
-            {
-                return NotFound();
-            }
-
-            var actorDTO = mapper.Map<ActorPatchDTO>(actorDB);
-
-            patchDocument.ApplyTo(actorDTO, ModelState);
-
-            var esValido = TryValidateModel(actorDTO);
-
-            if (!esValido)
-            {
-                return BadRequest(ModelState);
-            }
-
-            mapper.Map(actorDTO, actorDB);
-
-            await context.SaveChangesAsync();
-
-            return NoContent();
-            
         }
 
         // DELETE api/actores/5
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var existe = await context.Actores.AnyAsync(a => a.Id == id);
-
-            if (!existe)
-            {
-                return NotFound();
-            }
-
-            context.Remove(new Actor() { Id = id });
-            await context.SaveChangesAsync();
-
-            return NoContent();
+            return await Delete<Actor>(id);
         }
     }
 }
