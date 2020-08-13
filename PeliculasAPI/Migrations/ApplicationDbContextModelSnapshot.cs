@@ -177,6 +177,38 @@ namespace PeliculasAPI.Migrations
                     b.ToTable("PeliculasGeneros");
                 });
 
+            modelBuilder.Entity("PeliculasAPI.Entidades.PeliculasSalasDeCine", b =>
+                {
+                    b.Property<int>("PeliculaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SalaDeCineId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PeliculaId", "SalaDeCineId");
+
+                    b.HasIndex("SalaDeCineId");
+
+                    b.ToTable("PeliculasSalasDeCines");
+                });
+
+            modelBuilder.Entity("PeliculasAPI.Entidades.SalaDeCine", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(120)")
+                        .HasMaxLength(120);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SalasDeCine");
+                });
+
             modelBuilder.Entity("PeliculasAPI.Entidades.PeliculasActores", b =>
                 {
                     b.HasOne("PeliculasAPI.Entidades.Actor", "Actor")
@@ -203,6 +235,21 @@ namespace PeliculasAPI.Migrations
                     b.HasOne("PeliculasAPI.Entidades.Pelicula", "Pelicula")
                         .WithMany("PeliculasGeneros")
                         .HasForeignKey("PeliculaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PeliculasAPI.Entidades.PeliculasSalasDeCine", b =>
+                {
+                    b.HasOne("PeliculasAPI.Entidades.Pelicula", "Pelicula")
+                        .WithMany("PeliculasSalasDeCine")
+                        .HasForeignKey("PeliculaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PeliculasAPI.Entidades.SalaDeCine", "SalaDeCine")
+                        .WithMany("PeliculasSalasDeCine")
+                        .HasForeignKey("SalaDeCineId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

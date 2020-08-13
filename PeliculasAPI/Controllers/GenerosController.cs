@@ -42,14 +42,14 @@ namespace PeliculasAPI.Controllers
         }
 
         // PUT api/generos/5
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<ActionResult> Put(int id, [FromBody] GeneroCreacionDTO generoCreacionDTO)
         {
             return await Put<GeneroCreacionDTO, Genero>(id, generoCreacionDTO);
         }
 
         // DELETE api/generos/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id) 
         {
            return await Delete<Genero>(id);
