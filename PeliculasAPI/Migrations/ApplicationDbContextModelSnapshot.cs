@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NetTopologySuite.Geometries;
 using PeliculasAPI;
 
 namespace PeliculasAPI.Migrations
@@ -15,7 +16,7 @@ namespace PeliculasAPI.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.4")
+                .HasAnnotation("ProductVersion", "3.1.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -203,6 +204,9 @@ namespace PeliculasAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(120)")
                         .HasMaxLength(120);
+
+                    b.Property<Point>("Ubicacion")
+                        .HasColumnType("geography");
 
                     b.HasKey("Id");
 
