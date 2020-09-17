@@ -1,14 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
 using PeliculasAPI.Entidades;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace PeliculasAPI
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {   
@@ -24,6 +26,8 @@ namespace PeliculasAPI
             modelBuilder.Entity<PeliculasSalasDeCine>()
                 .HasKey(ps => new { ps.PeliculaId, ps.SalaDeCineId });
 
+
+
             SeedData(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
@@ -31,6 +35,70 @@ namespace PeliculasAPI
 
         private void SeedData(ModelBuilder modelBuilder)
         {
+            //Generamos un rolAdminId y un usuarioIdAdmin por defecto y aleatorio con permisos de Admin con Online GUIDE Generator 
+            var rolAdminId = "1fdd5e62-121c-45f7-8c44-8238637954d3";
+            var usuarioAdminId = "24e30796-ed46-4943-aa9a-2215c16a57c3";
+
+
+            var rolAdmin = new IdentityRole()
+            {
+                Id = rolAdminId,
+                Name = "Admin",
+                NormalizedName = "Admin"
+            };
+
+            var passwordHasher = new PasswordHasher<IdentityUser>();
+
+            var username = "project.siglo@gmail.com";
+
+            var usuarioAdmin = new IdentityUser()
+            {
+                Id = usuarioAdminId,
+                UserName = username,
+                NormalizedUserName = username,
+                Email = username,
+                NormalizedEmail = username,
+                PasswordHash = passwordHasher.HashPassword(null, "Aa123456!")
+            };
+
+            var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid:4326);
+
+            /*Primero sse debe correr la migración:
+             * Add-Migration TablasIdentity --> para crear las tablas Identity
+             * Update-Database --> para confirmar la creación
+             * por lo cual el siguiente código se debe comentar ya que las tablas aún no existen, 
+             * una vez se corra la migarción se descomenta el código y corremos la  migración:
+             * Add-Migration AdminData
+             * Update-Database
+             */
+
+            ////Inicio comentario
+            //modelBuilder.Entity<IdentityUser>()
+            //    .HasData(usuarioAdmin);
+
+            //modelBuilder.Entity<IdentityRole>()
+            //    .HasData(rolAdmin);
+
+            //modelBuilder.Entity<IdentityUserClaim<string>>()
+            //    .HasData(new IdentityUserClaim<string>()
+            //    {
+            //        Id = 1,
+            //        ClaimType = ClaimTypes.Role,
+            //        UserId = usuarioAdminId,
+            //        ClaimValue = "Admin"
+            //    });
+            ////Fin comentario
+
+            modelBuilder.Entity<SalaDeCine>()
+               .HasData(new List<SalaDeCine>
+               {
+                    new SalaDeCine{Id = 1003, Nombre = "Agora", Ubicacion = geometryFactory.CreatePoint(new Coordinate(-69.9388777, 18.4839233))},
+                    new SalaDeCine{Id = 1004, Nombre = "Sambil", Ubicacion = geometryFactory.CreatePoint(new Coordinate(-69.9118804, 18.4826214))},
+                    new SalaDeCine{Id = 1005, Nombre = "Megacentro", Ubicacion = geometryFactory.CreatePoint(new Coordinate(-69.856427, 18.506934))},
+                    new SalaDeCine{Id = 1006, Nombre = "Village East Cinema", Ubicacion = geometryFactory.CreatePoint(new Coordinate(-73.986227, 40.730898))}
+               });
+
+
             //Registros para poblar tabla Actores
             var jimCarrey = new Actor() 
             {
